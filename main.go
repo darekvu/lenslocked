@@ -17,6 +17,7 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/contact", contactHandler)
+
 	fmt.Println("Starting Server on port 3000...")
 	http.ListenAndServe(":3000", nil)
 }
