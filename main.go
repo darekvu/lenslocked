@@ -11,10 +11,9 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
+func execTemplate(w http.ResponseWriter, filePath string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	tplPath := filepath.Join("templates", "home.gohtml")
-	tpl, err := template.ParseFiles(tplPath)
+	tpl, err := template.ParseFiles(filePath)
 	if err != nil {
 		log.Printf("Error parsing template: %v", err)
 		http.Error(w, "There was an error parsing the template.", http.StatusInternalServerError)
@@ -26,29 +25,21 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "There was an error executing the template.", http.StatusInternalServerError)
 		return
 	}
+}
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	tplPath := filepath.Join("templates", "home.gohtml")
+	execTemplate(w, tplPath)
 
 }
 
 func contactHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprint(w, "<h1>Contact Page</h1><p>To get in touch, email me at <a href=\"mailto:darekvu\">darekvu@gmail.com</a>.</p>")
+	tplPath := filepath.Join("templates", "contact.gohtml ")
+	execTemplate(w, tplPath)
 }
 
 func faqHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprint(w, "<h1>FAQ Page</h1><p>Here are some frequently asked questions.</p>")
-}
-func pathHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.URL.Path {
-	case "/":
-		homeHandler(w, r)
-	case "/contact":
-		contactHandler(w, r)
-	default:
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "Page not Found")
-		http.Error(w, "Page not found", http.StatusNotFound)
-	}
+	tplPath := filepath.Join("templates", "faq.gohtml")
+	execTemplate(w, tplPath)
 }
 func main() {
 	r := chi.NewRouter()
@@ -56,6 +47,7 @@ func main() {
 	r.Get("/", homeHandler)
 	r.Get("/contact", contactHandler)
 	r.Get("/faq", faqHandler)
+	//r.Get("/faq", faqHandler)
 	fmt.Println("Starting Server on port 3000...")
-	http.ListenAndServe(":3000", r)
+	http.ListenAndServe("127.0.0.1:3000", r)
 }
