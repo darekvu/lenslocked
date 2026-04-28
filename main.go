@@ -2,50 +2,26 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"path/filepath"
 
+	"github.com/darekvu/lenslocked/controllers"
 	"github.com/darekvu/lenslocked/views"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 )
 
-func executeTemplate(w http.ResponseWriter, filePath string) {
-	tpl, err := views.Parse(filePath)
-	if err != nil {
-		log.Printf("Error parsing template: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	tpl.Execute(w, nil)
-}
-
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	tplPath := filepath.Join("templates", "home.gohtml")
-	executeTemplate(w, tplPath)
-
-}
-
-func contactHandler(w http.ResponseWriter, r *http.Request) {
-	tplPath := filepath.Join("templates", "contact.gohtml ")
-	executeTemplate(w, tplPath)
-}
-
-func faqHandler(w http.ResponseWriter, r *http.Request) {
-	tplPath := filepath.Join("templates", "faq.gohtml")
-	executeTemplate(w, tplPath)
-}
 func main() {
+
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Get("/", homeHandler)
-	r.Get("/contact", contactHandler)
-	r.Get("/faq", faqHandler)
+	tpl := views.Must(views.Parse(filepath.Join("templates", "home.gohtml")))
+	r.Get("/", controllers.StaticHandler(tpl))
+	tpl = views.Must(views.Parse(filepath.Join("templates", "contact.gohtml")))
+	r.Get("/contact", controllers.StaticHandler(tpl))
+	tpl = views.Must(views.Parse(filepath.Join("templates", "faq.gohtml")))
+	r.Get("/faq", controllers.StaticHandler(tpl))
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Not found", http.StatusNotFound)
 	})
-	//r.Get("/faq", faqHandler)
 	fmt.Println("Starting Server on port 3000...")
 	http.ListenAndServe("127.0.0.1:3000", r)
 }
